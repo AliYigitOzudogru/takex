@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  color: #e4e4e7;
+  background: #09090b;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: #09090b; }
+button, input { font: inherit; }
+::selection { color: #09090b; background: #65d4a2; }
+
+.markdown-content h1 { @apply mb-5 text-4xl font-semibold tracking-tight text-zinc-100; }
+.markdown-content h2 { @apply mb-3 mt-8 text-xl font-semibold text-zinc-200; }
+.markdown-content p { @apply mb-5 leading-8 text-zinc-400; }
+.markdown-content ul { @apply mb-6 list-disc space-y-2 pl-6 text-zinc-400; }
+.markdown-content strong { @apply font-semibold text-zinc-200; }
+.markdown-content blockquote { @apply my-7 border-l-2 border-emerald-400/60 bg-emerald-400/5 px-5 py-3 text-zinc-300; }
+.markdown-content pre { @apply my-6 overflow-x-auto border border-zinc-800 bg-zinc-950 p-4 text-sm; }
+.markdown-content code { @apply font-mono text-sm text-emerald-300; }
+.markdown-content pre code { color: inherit; }

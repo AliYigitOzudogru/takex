@@ -181,6 +181,22 @@ function AppShell() {
     await saveChats(workspacePath, nextChats)
   }
 
+  async function handleDeleteChat(chat: ChatSession) {
+    if (!window.confirm(`"${chat.title}" sohbeti ve mesaj geçmişi silinsin mi? Bu işlem geri alınamaz.`)) return
+    try {
+      setError('')
+      const nextChats = chats.filter((item) => item.id !== chat.id)
+      setChats(nextChats)
+      await saveChats(workspacePath, nextChats)
+      if (selectedChatId === chat.id) {
+        setSelectedChatId(undefined)
+        setActiveView('editor')
+      }
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : 'Sohbet silinemedi.')
+    }
+  }
+
   function changeWorkspace() {
     localStorage.removeItem(WORKSPACE_STORAGE_KEY)
     setWorkspacePath('')
@@ -196,7 +212,7 @@ function AppShell() {
   if (loading || !workspace) return <main className="flex min-h-screen items-center justify-center bg-zinc-950 text-emerald-300"><LoaderCircle className="animate-spin" size={22} /></main>
 
   const selectedChat = chats.find((chat) => chat.id === selectedChatId)
-  return <div className="flex h-screen min-h-[560px] min-w-0 overflow-hidden bg-zinc-950"><Sidebar workspace={workspace} activeView={activeView} onViewChange={setActiveView} chats={chats} selectedChatId={selectedChatId} onNewChat={() => setContextSelectorOpen(true)} onSelectChat={(chat) => { setSelectedChatId(chat.id); setActiveView('chat') }} selectedPath={selectedNote?.path} onSelectNote={(entry) => void handleSelectNote(entry)} onChangeWorkspace={changeWorkspace} onWorkspaceChanged={() => refreshWorkspace(workspacePath)} onGenerateNote={handleGenerateNote} onDelete={handleDelete} /><main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{error && <div className="flex shrink-0 items-center gap-2 border-b border-red-400/20 bg-red-400/5 px-6 py-3 text-xs text-red-300"><AlertCircle size={14} />{error}</div>}{activeView === 'chat' && selectedChat ? <ChatWindow chat={selectedChat} onSend={handleSendMessage} onBackToNotes={() => setActiveView('editor')} /> : targetFolder ? <AiGeneratorView targetFolderPath={targetFolder.path} targetFolderLabel={folderLabel(workspace, targetFolder.path)} onGenerated={handleGeneratedNote} /> : selectedNote ? <Editor path={selectedNote.path} name={selectedNote.name} content={content} onSaved={setContent} /> : <div className="flex min-h-0 flex-1 items-center justify-center text-sm text-zinc-600">Bu workspace içinde .md notu yok.</div>}</main>{contextSelectorOpen && <ContextSelector workspace={workspace} onClose={() => setContextSelectorOpen(false)} onStart={handleStartChat} />}</div>
+  return <div className="flex h-screen min-h-[560px] min-w-0 overflow-hidden bg-zinc-950"><Sidebar workspace={workspace} activeView={activeView} onViewChange={setActiveView} chats={chats} selectedChatId={selectedChatId} onNewChat={() => setContextSelectorOpen(true)} onSelectChat={(chat) => { setSelectedChatId(chat.id); setActiveView('chat') }} onDeleteChat={handleDeleteChat} selectedPath={selectedNote?.path} onSelectNote={(entry) => void handleSelectNote(entry)} onChangeWorkspace={changeWorkspace} onWorkspaceChanged={() => refreshWorkspace(workspacePath)} onGenerateNote={handleGenerateNote} onDelete={handleDelete} /><main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{error && <div className="flex shrink-0 items-center gap-2 border-b border-red-400/20 bg-red-400/5 px-6 py-3 text-xs text-red-300"><AlertCircle size={14} />{error}</div>}{activeView === 'chat' && selectedChat ? <ChatWindow chat={selectedChat} onSend={handleSendMessage} onBackToNotes={() => setActiveView('editor')} /> : targetFolder ? <AiGeneratorView targetFolderPath={targetFolder.path} targetFolderLabel={folderLabel(workspace, targetFolder.path)} onGenerated={handleGeneratedNote} /> : selectedNote ? <Editor path={selectedNote.path} name={selectedNote.name} content={content} onSaved={setContent} /> : <div className="flex min-h-0 flex-1 items-center justify-center text-sm text-zinc-600">Bu workspace içinde .md notu yok.</div>}</main>{contextSelectorOpen && <ContextSelector workspace={workspace} onClose={() => setContextSelectorOpen(false)} onStart={handleStartChat} />}</div>
 }
 
 export default function App() { return <AppShell /> }

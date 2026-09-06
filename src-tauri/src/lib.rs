@@ -121,6 +121,31 @@ fn delete_item(path: String) -> Result<(), String> {
     }
 }
 
+fn chats_path(workspace_path: &str) -> PathBuf {
+    PathBuf::from(workspace_path).join(".takex").join("chats.json")
+}
+
+#[tauri::command]
+fn load_chats(workspace_path: String) -> Result<String, String> {
+    let path = chats_path(&workspace_path);
+    if !path.exists() {
+        return Ok("[]".to_string());
+    }
+    fs::read_to_string(path).map_err(|error| format!("Sohbet geçmişi okunamadı: {error}"))
+}
+
+#[tauri::command]
+fn save_chats(workspace_path: String, chats: String) -> Result<(), String> {
+    let directory = PathBuf::from(workspace_path).join(".takex");
+    fs::create_dir_all(&directory).map_err(|error| format!("Sohbet klasörü oluşturulamadı: {error}"))?;
+    let parsed: serde_json::Value = serde_json::from_str(&chats)
+        .map_err(|error| format!("Sohbet geçmişi geçersiz: {error}"))?;
+    let formatted = serde_json::to_string_pretty(&parsed)
+        .map_err(|error| format!("Sohbet geçmişi hazırlanamadı: {error}"))?;
+    fs::write(directory.join("chats.json"), formatted)
+        .map_err(|error| format!("Sohbet geçmişi kaydedilemedi: {error}"))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -133,7 +158,9 @@ pub fn run() {
             create_directory,
             create_note,
             rename_item,
-            delete_item
+            delete_item,
+            load_chats,
+            save_chats
         ])
         .run(tauri::generate_context!())
         .expect("error while running Takex");

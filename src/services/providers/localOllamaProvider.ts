@@ -1,6 +1,6 @@
 import type { AiProvider } from '../aiProvider'
 
-const OLLAMA_URL = 'http://127.0.0.1:11435/api/chat'
+const OLLAMA_URL = 'http://127.0.0.1:11434/api/chat'
 const MODEL = 'qwen2.5-coder:3b'
 const SYSTEM_PROMPT = 'Sen kıdemli bir bilgisayar mühendisliği profesörü ve teknik yazarsın. Kullanıcının verdiği kavramı akademik düzeyde, doğru teknik terminolojiyle, sade Markdown formatında açıkla. Sadece Markdown çıktısı ver, yorum veya gereksiz giriş cümlesi ekleme.'
 
@@ -25,7 +25,7 @@ export const localOllamaProvider: AiProvider = {
         }),
       })
     } catch {
-      throw new Error("Yerel model çalışmıyor. Ollama'nın açık olduğundan emin olun (OLLAMA_HOST=127.0.0.1:11435).")
+      throw new Error("Yerel model çalışmıyor. Ollama'nın açık olduğundan emin olun (OLLAMA_HOST=127.0.0.1:11434).")
     }
 
     if (!response.ok) {

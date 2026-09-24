@@ -5,6 +5,7 @@ import { ChatWindow } from './components/ChatWindow'
 import { ContextSelector } from './components/ContextSelector'
 import { Editor } from './components/Editor'
 import { Sidebar } from './components/Sidebar'
+import { SlidesView } from './components/SlidesView'
 import { WorkspacePicker } from './components/WorkspacePicker'
 import { askOllama } from './services/chatService'
 import { loadChats, saveChats } from './services/chatStorage'
@@ -47,7 +48,7 @@ function AppShell() {
   const [loading, setLoading] = useState(Boolean(workspacePath))
   const [error, setError] = useState('')
   const [targetFolder, setTargetFolder] = useState<WorkspaceEntry>()
-  const [activeView, setActiveView] = useState<'editor' | 'chat'>('editor')
+  const [activeView, setActiveView] = useState<'editor' | 'chat' | 'slides'>('editor')
   const [chats, setChats] = useState<ChatSession[]>([])
   const [selectedChatId, setSelectedChatId] = useState<string>()
   const [contextSelectorOpen, setContextSelectorOpen] = useState(false)
@@ -212,7 +213,7 @@ function AppShell() {
   if (loading || !workspace) return <main className="flex min-h-screen items-center justify-center bg-zinc-950 text-emerald-300"><LoaderCircle className="animate-spin" size={22} /></main>
 
   const selectedChat = chats.find((chat) => chat.id === selectedChatId)
-  return <div className="flex h-screen min-h-[560px] min-w-0 overflow-hidden bg-zinc-950"><Sidebar workspace={workspace} activeView={activeView} onViewChange={setActiveView} chats={chats} selectedChatId={selectedChatId} onNewChat={() => setContextSelectorOpen(true)} onSelectChat={(chat) => { setSelectedChatId(chat.id); setActiveView('chat') }} onDeleteChat={handleDeleteChat} selectedPath={selectedNote?.path} onSelectNote={(entry) => void handleSelectNote(entry)} onChangeWorkspace={changeWorkspace} onWorkspaceChanged={() => refreshWorkspace(workspacePath)} onGenerateNote={handleGenerateNote} onDelete={handleDelete} /><main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{error && <div className="flex shrink-0 items-center gap-2 border-b border-red-400/20 bg-red-400/5 px-6 py-3 text-xs text-red-300"><AlertCircle size={14} />{error}</div>}{activeView === 'chat' && selectedChat ? <ChatWindow chat={selectedChat} onSend={handleSendMessage} onBackToNotes={() => setActiveView('editor')} /> : targetFolder ? <AiGeneratorView targetFolderPath={targetFolder.path} targetFolderLabel={folderLabel(workspace, targetFolder.path)} onGenerated={handleGeneratedNote} /> : selectedNote ? <Editor path={selectedNote.path} name={selectedNote.name} content={content} onSaved={setContent} /> : <div className="flex min-h-0 flex-1 items-center justify-center text-sm text-zinc-600">Bu workspace içinde .md notu yok.</div>}</main>{contextSelectorOpen && <ContextSelector workspace={workspace} onClose={() => setContextSelectorOpen(false)} onStart={handleStartChat} />}</div>
+  return <div className="flex h-screen min-h-[560px] min-w-0 overflow-hidden bg-zinc-950"><Sidebar workspace={workspace} activeView={activeView} onViewChange={setActiveView} chats={chats} selectedChatId={selectedChatId} onNewChat={() => setContextSelectorOpen(true)} onSelectChat={(chat) => { setSelectedChatId(chat.id); setActiveView('chat') }} onDeleteChat={handleDeleteChat} selectedPath={selectedNote?.path} onSelectNote={(entry) => void handleSelectNote(entry)} onChangeWorkspace={changeWorkspace} onWorkspaceChanged={() => refreshWorkspace(workspacePath)} onGenerateNote={handleGenerateNote} onDelete={handleDelete} /><main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{error && activeView !== 'slides' && <div className="flex shrink-0 items-center gap-2 border-b border-red-400/20 bg-red-400/5 px-6 py-3 text-xs text-red-300"><AlertCircle size={14} />{error}</div>}{activeView === 'slides' ? <SlidesView /> : activeView === 'chat' && selectedChat ? <ChatWindow chat={selectedChat} onSend={handleSendMessage} onBackToNotes={() => setActiveView('editor')} /> : targetFolder ? <AiGeneratorView targetFolderPath={targetFolder.path} targetFolderLabel={folderLabel(workspace, targetFolder.path)} onGenerated={handleGeneratedNote} /> : selectedNote ? <Editor path={selectedNote.path} name={selectedNote.name} content={content} onSaved={setContent} /> : <div className="flex min-h-0 flex-1 items-center justify-center text-sm text-zinc-600">Bu workspace içinde .md notu yok.</div>}</main>{contextSelectorOpen && <ContextSelector workspace={workspace} onClose={() => setContextSelectorOpen(false)} onStart={handleStartChat} />}</div>
 }
 
 export default function App() { return <AppShell /> }
